@@ -31,7 +31,8 @@ jobs:
     # 4. بناء ملف EXE مع كل الموارد المطلوبة
     - name: Build EXE
       run: >
-        pyinstaller --onefile --windowed --name improved_ui
+        pyinstaller --onefile --windowed --name SelkhozRisheniya
+        --icon app_icon.ico
         --hidden-import serial
         --add-data "images;images"
         --add-data "flags;flags"
