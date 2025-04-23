@@ -1,34 +1,54 @@
 name: Build Windows EXE
 
+# سيعمل تلقائيًّا عند كل push إلى الفرع main، أو يدويًّا من صفحة Actions
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+    # 1) اجلب الكود
+    - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    # 2) جهِّز بايثون 3.11
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Install requirements
-        run: |
-          python -m pip install --upgrade pip
-          pip install GitPython PyQt5 PyQtWebEngine matplotlib numpy requests
-          pip install pyinstaller
+    # 3) ثبّت المتطلبات وPyInstaller
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
 
-      - name: Build EXE
-        run: pyinstaller --onefile launcher.py
+    # 4) ابنِ improved_ui.exe مع جمع كل البيانات والـ hidden-imports
+    - name: Build EXE
+      run: |
+        pyinstaller --onefile ^
+          --name improved_ui ^                       # ← اسم الملف الناتج
+          --collect-all PyQt5.QtWebEngineWidgets ^   # ملفات QtWebEngine
+          --collect-all PyQt5.QtWebEngineCore ^
+          --collect-all matplotlib ^
+          --collect-all numpy ^
+          --collect-submodules encodings ^           # لحل خطأ encodings
+          --hidden-import encodings ^
+          --hidden-import numpy.linalg._umath_linalg ^
+          --hidden-import matplotlib._c_internal_utils ^
+          --add-data "images;images" ^               # مجلد الصور
+          --add-data "flags;flags" ^                 # مجلد الأعلام
+          improved_ui.py
 
-      - name: Upload EXE to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: build-${{ github.run_number }}
-          name: build-${{ github.run_number }}
-          body: Auto build
-          files: dist/launcher.exe
+    # 5) ارفع improved_ui.exe إلى صفحة Releases تلقائيًا
+    - name: Upload EXE to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: build-${{ github.run_number }}
+        name: build-${{ github.run_number }}
+        body: Auto build
+        files: dist/improved_ui.exe
