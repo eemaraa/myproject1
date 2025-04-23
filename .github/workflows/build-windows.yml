@@ -27,7 +27,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install pyinstaller
-        python -m pip install pyqt5 pyqtwebengine pyserial requests matplotlib numpy
+        python -m pip install pyqt5 pyqtwebengine
+        python -m pip install pyserial        # ← هنا
+        python -m pip install requests matplotlib numpy
+
 
     # ── 4. بناء ملف EXE مع كل الموارد وإخفاء الكونسول ───────────
     - name: Build EXE
