@@ -2,46 +2,45 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main ]          # يبنى عند كل Push
+  workflow_dispatch:            # أو يدويًا من تبويب Actions
 
 permissions:
-  contents: write               # كي يتمكّن من رفع الـ Release
+  contents: write               # للسماح برفع الـ Release
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    # 1) جلب الكود
+    # ── 1. جلب الكود ─────────────────────────────────────────────
     - uses: actions/checkout@v3
 
-    # 2) إعداد بايثون
+    # ── 2. إعداد بايثون ──────────────────────────────────────────
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    # 3) تثبيت PyInstaller والمكتبات المطلوبة
+    # ── 3. تثبيت المكتبات ────────────────────────────────────────
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pyinstaller           # ← PyInstaller أولاً
-        python -m pip install pyqt5 pyqtwebengine
-        python -m pip install pyserial requests
-        python -m pip install matplotlib numpy
+        python -m pip install pyinstaller
+        python -m pip install pyqt5 pyqtwebengine pyserial requests matplotlib numpy
 
-    # 4) بناء ملف EXE
+    # ── 4. بناء ملف EXE مع كل الموارد وإخفاء الكونسول ───────────
     - name: Build EXE
       run: >
-        pyinstaller --onefile --name improved_ui
+        pyinstaller --onefile --windowed --name improved_ui
         --add-data "images;images"
         --add-data "flags;flags"
+        --add-data "MessageConfig;MessageConfig"
+        --add-data "config.ini;."
+        --add-data "constellation.html;."
         improved_ui.py
 
-
-
-    # 5) رفعه إلى صفحة Releases
+    # ── 5. رفع exe إلى صفحة Releases ────────────────────────────
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
