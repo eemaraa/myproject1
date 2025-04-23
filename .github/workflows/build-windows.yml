@@ -2,8 +2,11 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ main ]          # يبنى فى كل Push
+    branches: [ main ]          # يبنى في كل Push
   workflow_dispatch:            # أو يدويًا من Actions
+
+permissions:                    # ← هذا السطر ضروري لإنشاء release
+  contents: write
 
 jobs:
   build:
