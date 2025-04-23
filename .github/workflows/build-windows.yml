@@ -51,6 +51,6 @@ jobs:
         tag_name: build-${{ github.run_number }}
         name: build-${{ github.run_number }}
         body: Auto build
-        files: dist/improved_ui.exe
+        files: dist/SelkhozRisheniya.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
