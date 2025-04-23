@@ -1915,7 +1915,7 @@ import tempfile
 import subprocess
 
 VERSION = "1.0.0"
-VERSION_URL = "https://github.com/eemaraa/myproject1/main/version.txt"
+VERSION_URL = "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/main/version.txt"
 EXE_URL     = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
 
 def auto_update():
