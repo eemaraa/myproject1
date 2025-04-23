@@ -1910,71 +1910,83 @@ class MainWindow(QtWidgets.QMainWindow):
 ##############################################
 # التطبيق الرئيسي
 ##############################################
+import shutil
+import tempfile
+import subprocess
 
-STATUS_URL = (
-    "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/main/status.json"
-)
+VERSION = "1.0.0"
+VERSION_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/version.txt"
+EXE_URL     = "https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/releases/latest/download/improved_ui.exe"
 
-def check_global_enabled():
+def auto_update():
     try:
-        r = requests.get(STATUS_URL, timeout=5)
+        r = requests.get(VERSION_URL, timeout=5)
         r.raise_for_status()
-        data = r.json()
-        return data.get("enabled", False)
-    except Exception:
-        # إذا فشل التحميل اعتبره موقوفًا
-        return False
+        latest = r.text.strip()
+
+        if latest != VERSION:
+            print(f"⏬ تحديث متاح: {latest}")
+            temp_path = os.path.join(tempfile.gettempdir(), "new_version.exe")
+            r2 = requests.get(EXE_URL, stream=True, timeout=10)
+            with open(temp_path, "wb") as f:
+                for chunk in r2.iter_content(1024 * 1024):
+                    f.write(chunk)
+
+            print("✅ تم تحميل التحديث بنجاح")
+            # إعداد سكريبت يستبدل الملف الحالي بعد إنهاءه
+            script = f"""
+            timeout /t 2 >nul
+            move /Y "{temp_path}" "{sys.argv[0]}"
+            start "" "{sys.argv[0]}"
+            """
+            bat_path = os.path.join(tempfile.gettempdir(), "update.bat")
+            with open(bat_path, "w", encoding="utf-8") as f:
+                f.write(script)
+            subprocess.Popen(['cmd', '/c', bat_path], shell=True)
+            sys.exit(0)
+
+    except Exception as e:
+        print("❌ فشل التحقق من التحديث:", e)
+
 
 def main():
-    # 1) إنشاء QApplication
+    auto_update()  # ← إضافة هذه السطر في البداية
+
     app = QtWidgets.QApplication(sys.argv)
 
-    # 2) فحص حالة التفعيل العام
-    if not check_global_enabled():
-        QtWidgets.QMessageBox.critical(
-            None,
-            "Error",  # عنوان صندوق الحوار
-            "Ошибка.\nПожалуйста, попробуйте позже.",
-            QtWidgets.QMessageBox.Ok
-        )
-        sys.exit(1)
-
-    # 3) إعداد الثيم والـ splash
-    app.setStyleSheet(f"""
-    QMainWindow {{
+    # باقي الكود كما هو
+    app.setStyleSheet("""
+    QMainWindow {
         background-color: white;
-    }}
-    QWidget#sidebar {{
+    }
+    QWidget#sidebar {
         background-color: #90EE90;
-    }}
-    QToolButton#toggleButton {{
+    }
+    QToolButton#toggleButton {
         background-color: transparent;
         color: black;
         border: none;
         margin: 5px;
-    }}
-    QLabel {{
+    }
+    QLabel {
         color: black;
-    }}
-    QStatusBar {{
+    }
+    QStatusBar {
         background-color: #DEF2F1;
         font-size: 12px;
-    }}
+    }
     """)
 
     splash = SplashScreen(os.path.join("images", "logo.gif"))
     splash.show()
     app.processEvents()
 
-    # 4) تهيئة النافذة الرئيسية ولكن لا تظهرها فوراً
     window = MainWindow()
-
-    # بعد 8 ثوانٍ: أغلق الـ splash واطرح النافذة بحجم كامل
     QtCore.QTimer.singleShot(8000, splash.close)
-    QtCore.QTimer.singleShot(8000, window.showMaximized)
+    window.show()
 
-    # 5) بدء حلقة الحدث
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
