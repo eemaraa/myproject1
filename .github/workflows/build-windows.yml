@@ -33,6 +33,7 @@ jobs:
     - name: Build EXE
       run: >
         pyinstaller --onefile --windowed --name improved_ui
+        --hidden-import serial                              # ← الحلّ
         --add-data "images;images"
         --add-data "flags;flags"
         --add-data "MessageConfig;MessageConfig"
@@ -41,6 +42,7 @@ jobs:
         --collect-all PyQt5.QtWebEngineWidgets
         --collect-all PyQt5.QtWebEngineCore
         improved_ui.py
+
 
 
     # ── 5. رفع exe إلى صفحة Releases ────────────────────────────
