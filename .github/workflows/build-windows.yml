@@ -2,7 +2,7 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ main ]          # يبنى عند كل Push
+    branches: [ main ]          # يتم البناء عند كل Push
   workflow_dispatch:            # أو يدويًا من تبويب Actions
 
 permissions:
@@ -13,30 +13,26 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    # ── 1. جلب الكود ─────────────────────────────────────────────
+    # 1. جلب الكود
     - uses: actions/checkout@v3
 
-    # ── 2. إعداد بايثون ──────────────────────────────────────────
+    # 2. إعداد بايثون
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    # ── 3. تثبيت المكتبات ────────────────────────────────────────
+    # 3. تثبيت المكتبات
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pyinstaller
-        python -m pip install pyqt5 pyqtwebengine
-        python -m pip install pyserial        # ← هنا
-        python -m pip install requests matplotlib numpy
+        python -m pip install pyinstaller pyqt5 pyqtwebengine pyserial requests matplotlib numpy
 
-
-    # ── 4. بناء ملف EXE مع كل الموارد وإخفاء الكونسول ───────────
+    # 4. بناء ملف EXE مع كل الموارد المطلوبة
     - name: Build EXE
       run: >
         pyinstaller --onefile --windowed --name improved_ui
-        --hidden-import serial                              # ← الحلّ
+        --hidden-import serial
         --add-data "images;images"
         --add-data "flags;flags"
         --add-data "MessageConfig;MessageConfig"
@@ -46,9 +42,7 @@ jobs:
         --collect-all PyQt5.QtWebEngineCore
         improved_ui.py
 
-
-
-    # ── 5. رفع exe إلى صفحة Releases ────────────────────────────
+    # 5. رفع الملف إلى صفحة Releases
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
