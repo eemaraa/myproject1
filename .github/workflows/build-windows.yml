@@ -5,26 +5,39 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write               # كي يتمكّن من رفع الـ Release
+
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
+    # 1) جلب الكود
     - uses: actions/checkout@v3
 
+    # 2) إعداد بايثون
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
+    # 3) تثبيت PyInstaller والمكتبات المطلوبة
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyqt5 pyqtwebengine pyserial requests matplotlib numpy
+        python -m pip install pyinstaller           # ← PyInstaller أولاً
+        python -m pip install pyqt5 pyqtwebengine
+        python -m pip install pyserial requests
+        python -m pip install matplotlib numpy
 
+    # 4) بناء ملف EXE
     - name: Build EXE
-      run: python -m pyinstaller --onefile --name improved_ui improved_ui.py
+      run: |
+        pyinstaller --version                       # للتأكد أنه موجود
+        pyinstaller --onefile --name improved_ui improved_ui.py
 
+    # 5) رفعه إلى صفحة Releases
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
