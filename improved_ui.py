@@ -22,6 +22,8 @@ from datetime import datetime
 from functools import partial
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QDialog, QFormLayout, QLineEdit, QDialogButtonBox, QVBoxLayout
+from PyQt5.QtWebEngine import QtWebEngine
+QtWebEngine.initialize()
 
 
 
@@ -1910,7 +1912,7 @@ class MainWindow(QtWidgets.QMainWindow):
 ##############################################
 
 STATUS_URL = (
-    "https://raw.githubusercontent.com/eemaraa/Selkhozrishynia/refs/heads/main/status.json?token=GHSAT0AAAAAADCUP5OGHC5K6NKBPQX3XZP22AICUDA"
+    "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/main/status.json"
 )
 
 def check_global_enabled():
