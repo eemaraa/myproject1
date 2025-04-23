@@ -1,0 +1,26 @@
+import sys
+import json
+import time
+import serial
+import serial.tools.list_ports   # ← بعد import serial مباشرة
+import csv
+import configparser
+from threading import Thread
+import os
+import random
+import math
+import re
+import requests
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox   # ← أضف الاستيراد
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+from matplotlib import patheffects
+from datetime import datetime
+from functools import partial
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QDialog, QFormLayout, QLineEdit, QDialogButtonBox, QVBoxLayout
+from PyQt5.QtWebEngine import QtWebEngine
+QtWebEngine.initialize()
