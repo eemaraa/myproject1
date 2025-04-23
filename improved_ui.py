@@ -1910,8 +1910,10 @@ class MainWindow(QtWidgets.QMainWindow):
 ##############################################
 # التطبيق الرئيسي
 ##############################################
-import shutil
+import os
+import sys
 import tempfile
+import requests
 import subprocess
 
 VERSION = "1.0.0"
@@ -1920,28 +1922,39 @@ EXE_URL     = "https://github.com/eemaraa/myproject1/releases/latest/download/Se
 
 def auto_update():
     try:
+        # 1. طلب رقم النسخة الجديدة من GitHub
         r = requests.get(VERSION_URL, timeout=5)
         r.raise_for_status()
         latest = r.text.strip()
 
+        # 2. لو فيه إصدار أحدث
         if latest != VERSION:
             print(f"⏬ تحديث متاح: {latest}")
-            temp_path = os.path.join(tempfile.gettempdir(), "new_version.exe")
+
+            # 3. تحميل النسخة الجديدة إلى ملف مؤقت
+            temp_path = os.path.join(tempfile.gettempdir(), "SelkhozRisheniya_new.exe")
             r2 = requests.get(EXE_URL, stream=True, timeout=10)
             with open(temp_path, "wb") as f:
                 for chunk in r2.iter_content(1024 * 1024):
                     f.write(chunk)
 
             print("✅ تم تحميل التحديث بنجاح")
-            # إعداد سكريبت يستبدل الملف الحالي بعد إنهاءه
-            script = f"""
-            timeout /t 2 >nul
-            move /Y "{temp_path}" "{sys.argv[0]}"
-            start "" "{sys.argv[0]}"
-            """
+
+            # 4. إنشاء سكربت bat لاستبدال النسخة الحالية بعد الإغلاق
             bat_path = os.path.join(tempfile.gettempdir(), "update.bat")
+            current_exe = sys.argv[0]
+
+            script = f"""
+            @echo off
+            timeout /t 2 >nul
+            move /Y "{temp_path}" "{current_exe}"
+            start "" "{current_exe}"
+            """
+
             with open(bat_path, "w", encoding="utf-8") as f:
                 f.write(script)
+
+            # 5. تشغيل السكربت و إنهاء النسخة القديمة
             subprocess.Popen(['cmd', '/c', bat_path], shell=True)
             sys.exit(0)
 
