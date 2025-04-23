@@ -33,12 +33,12 @@ jobs:
 
     # 4) بناء ملف EXE
     - name: Build EXE
-      run: |
-        pyinstaller --version               # للتأكد
+      run: >
         pyinstaller --onefile --name improved_ui
-          --add-data "images;images"
-          --add-data "flags;flags"
-          improved_ui.py
+        --add-data "images;images"
+        --add-data "flags;flags"
+        improved_ui.py
+
 
 
     # 5) رفعه إلى صفحة Releases
