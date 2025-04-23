@@ -22,6 +22,8 @@ from datetime import datetime
 from functools import partial
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QDialog, QFormLayout, QLineEdit, QDialogButtonBox, QVBoxLayout
+from PyQt5.QtWebEngine import QtWebEngine
+QtWebEngine.initialize()
 
 
 
