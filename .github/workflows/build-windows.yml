@@ -23,7 +23,7 @@ jobs:
         pip install pyqt5 pyqtwebengine pyserial requests matplotlib numpy
 
     - name: Build EXE
-      run: python -m PyInstaller --onefile --name improved_ui improved_ui.py
+      run: python -m pyinstaller --onefile --name improved_ui improved_ui.py
 
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
