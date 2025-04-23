@@ -38,7 +38,10 @@ jobs:
         --add-data "MessageConfig;MessageConfig"
         --add-data "config.ini;."
         --add-data "constellation.html;."
+        --collect-all PyQt5.QtWebEngineWidgets
+        --collect-all PyQt5.QtWebEngineCore
         improved_ui.py
+
 
     # ── 5. رفع exe إلى صفحة Releases ────────────────────────────
     - name: Upload to Release
