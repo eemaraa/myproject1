@@ -40,6 +40,7 @@ jobs:
         --add-data "constellation.html;."
         --collect-all PyQt5.QtWebEngineWidgets
         --collect-all PyQt5.QtWebEngineCore
+        --collect-all PyQt5.QtWebEngine
         improved_ui.py
 
     # 5. رفع الملف إلى صفحة Releases
