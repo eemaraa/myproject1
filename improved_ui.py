@@ -1925,7 +1925,7 @@ from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
 from PyQt5.QtCore import Qt
 import os, sys, tempfile, requests, subprocess
 
-VERSION      = "1.0.2"
+VERSION      = "1.0.3"
 VERSION_URL  = "https://raw.githubusercontent.com/eemaraa/myproject1/main/version.txt"
 EXE_URL      = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
 
