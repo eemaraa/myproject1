@@ -1671,9 +1671,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # قائمة الأزرار
         self.menuItems = [
-            ("Поток данных","images/data_stream.png",  Поток_данных),
+            ("Поток Данных","images/data_stream.png",  Поток_данных),
             ("Созвездие",  "images/constellation.png", Созвездие),
-            ("Статус отслеживания","images/tracking_status.png",Статус_отслеживания),
+            ("Статус Отслеживания","images/tracking_status.png",Статус_отслеживания),
             ("Карта",      "images/map.png",           Карта),
         ]
         self.buttons = []
@@ -1922,7 +1922,7 @@ import tempfile
 import requests
 import subprocess
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 VERSION_URL = "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/main/version.txt"
 EXE_URL     = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
 
