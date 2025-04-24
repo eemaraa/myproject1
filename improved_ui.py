@@ -485,6 +485,7 @@ class Поток_данных(QtWidgets.QWidget):
     newLine = QtCore.pyqtSignal(str)
     locationChanged = QtCore.pyqtSignal(float, float, float)  # lat, lon, alt
     locationDetailed = QtCore.pyqtSignal(dict)
+    
 
     # ---------------------------------------------
     # قائمة الأوامر السريعة
@@ -530,6 +531,7 @@ class Поток_данных(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._is_searching = False
         self._running = True     # ← سنستخدمه للتحكّم فى حلقة القراءة
         self.destroyed.connect(lambda _: setattr(self, "_running", False))
         self._last_info = {
@@ -698,6 +700,10 @@ class Поток_данных(QtWidgets.QWidget):
             self.sendAndWaitUntilAck(cmd, timeout=1.0)
 
     def sendAndWaitUntilAck(self, cmd: str, timeout: float = 1.0):
+
+        if cmd.startswith("MODE BASE"):
+            self._is_searching = True
+
         if not self.ser or not self.ser.is_open:
             return
         while True:
@@ -726,7 +732,7 @@ class Поток_данных(QtWidgets.QWidget):
 
     def showSelfOptimizeDialog(self):
         dlg = QtWidgets.QDialog(self)
-        dlg.setWindowTitle("Self‑optimize to access base station mode")
+        dlg.setWindowTitle("Автопозиционирование")
         vlay = QtWidgets.QVBoxLayout(dlg)
 
         form = QtWidgets.QFormLayout()
@@ -1113,7 +1119,7 @@ class Карта(QtWidgets.QWidget):
             <style>html,body,#map{{height:100%;margin:0}}</style>
 
             <!-- خرائط ياندكس -->
-            <script src='https://api-maps.yandex.ru/2.1/?apikey=9bce9d34-449f-4ca0-9cc4-30906d264d80&lang=en_RU'></script>
+            <script src='https://api-maps.yandex.ru/2.1/?lang=en_RU'></script>
             <script>
             var map, marker;
 
@@ -1921,6 +1927,8 @@ VERSION_URL = "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/m
 EXE_URL     = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
 
 def auto_update():
+
+    
     try:
         # 1. طلب رقم النسخة الجديدة من GitHub
         r = requests.get(VERSION_URL, timeout=5)
@@ -1929,16 +1937,16 @@ def auto_update():
 
         # 2. لو فيه إصدار أحدث
         if latest != VERSION:
-            print(f"⏬ تحديث متاح: {latest}")
+            print(f"⏬ There is a new update: {latest}")
 
             # 3. تحميل النسخة الجديدة إلى ملف مؤقت
-            temp_path = os.path.join(tempfile.gettempdir(), "SelkhozRisheniya_new.exe")
+            temp_path = os.path.join(tempfile.gettempdir(), "new.exe")
             r2 = requests.get(EXE_URL, stream=True, timeout=10)
             with open(temp_path, "wb") as f:
                 for chunk in r2.iter_content(1024 * 1024):
                     f.write(chunk)
 
-            print("✅ تم تحميل التحديث بنجاح")
+            print("✅ Updated")
 
             # 4. إنشاء سكربت bat لاستبدال النسخة الحالية بعد الإغلاق
             bat_path = os.path.join(tempfile.gettempdir(), "update.bat")
