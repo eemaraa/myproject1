@@ -26,24 +26,21 @@ jobs:
           python -m pip install pyinstaller pyqt5 pyqtwebengine pyserial requests matplotlib numpy
 
       - name: Build EXE
-        shell: bash
         run: |
-          # نحصل مسار python312.dll من تثبيت البايثون
-          PY_DLL="$(python -c "import sys; print(sys.exec_prefix + '/python312.dll')")"
-          # نبني exe واحد يضمّ كل DLLs داخلياً
-          pyinstaller --onefile --windowed \
-            --name SelkhozRisheniya \
-            --icon app_icon.ico \
-            --hidden-import serial \
-            --add-binary "${PY_DLL};." \
-            --add-data "images;images" \
-            --add-data "flags;flags" \
-            --add-data "MessageConfig;MessageConfig" \
-            --add-data "config.ini;." \
-            --add-data "constellation.html;." \
-            --collect-all PyQt5.QtWebEngineWidgets \
-            --collect-all PyQt5.QtWebEngineCore \
-            --collect-all PyQt5.QtWebEngine \
+          PY_DLL="$(python -c "import sys; print(sys.exec_prefix + '/python311.dll')")"
+          pyinstaller --onefile --windowed
+            --name SelkhozRisheniya
+            --icon app_icon.ico
+            --hidden-import serial
+            --add-binary "${PY_DLL};."
+            --add-data "images;images"
+            --add-data "flags;flags"
+            --add-data "MessageConfig;MessageConfig"
+            --add-data "config.ini;."
+            --add-data "constellation.html;."
+            --collect-all PyQt5.QtWebEngineWidgets
+            --collect-all PyQt5.QtWebEngineCore
+            --collect-all PyQt5.QtWebEngine
             improved_ui.py
 
       - name: Upload to Release
