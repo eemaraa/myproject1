@@ -1998,10 +1998,13 @@ Start-Process -FilePath "{current_exe}"
 
 
 def main():
-    app = QtWidgets.QApplication(sys.argv)
-    auto_update()  # ← إضافة هذه السطر في البداية
+    # 1) أنشئ الـ QApplication مرة واحدة
+    app = QApplication(sys.argv)
 
-    
+    # 2) افحص التحديثات قبل بناء أي واجهة
+    auto_update()
+
+    # 3) اضبط الثيم العام
     app.setStyleSheet("""
     QMainWindow { background-color: white; }
     QWidget#sidebar { background-color: #90EE90; }
@@ -2010,22 +2013,19 @@ def main():
     QStatusBar { background-color: #DEF2F1; font-size: 12px; }
     """)
 
-    # شاشة البداية المتحركة
+    # 4) شاشة البداية
     splash = SplashScreen(os.path.join("images", "logo.gif"))
     splash.show()
-    app.processEvents()       # يضمن عرض الـ GIF فورًا
+    app.processEvents()
 
-    # نافذة البرنامج
+    # 5) النافذة الرئيسية
     window = MainWindow()
-    window.showMinimized()    # اظهرها مصغّرة فقط فى شريط المهام
+    window.show()        # إن أردت تظهرها مصغّرة استخدم showMinimized()
 
-    # بعد 8 ثوانٍ أغلِق الـ Splash وكبِّر النافذة
-    def finish_splash():
-        splash.close()
-        window.showNormal()  # أو showNormal() إذا كنت لا تريد تكبيرًا كاملًا
+    # 6) إغلاق الـ Splash بعد 8 ثوانٍ وإظهار النافذة
+    QtCore.QTimer.singleShot(8000, lambda: (splash.close(), window.showNormal()))
 
-    QtCore.QTimer.singleShot(8000, finish_splash)
-
+    # 7) بدء حلقة الأحداث
     sys.exit(app.exec_())
 
 
