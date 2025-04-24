@@ -30,7 +30,7 @@ jobs:
 
     # 4. بناء ملف EXE مع كل الموارد المطلوبة
     - name: Build EXE
-      run: |
+      run: >
         pyinstaller --onefile --windowed --name SelkhozRisheniya
         --icon app_icon.ico
         --hidden-import serial
