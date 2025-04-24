@@ -2,53 +2,55 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main ]          # يتم البناء عند كل Push
+  workflow_dispatch:            # أو يدويًا من تبويب Actions
 
 permissions:
-  contents: write
+  contents: write               # للسماح برفع الـ Release
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+    # 1. جلب الكود
+    - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    # 2. إعداد بايثون
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pyinstaller pyqt5 pyqtwebengine pyserial requests matplotlib numpy
+    # 3. تثبيت المكتبات
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pyinstaller pyqt5 pyqtwebengine pyserial requests matplotlib numpy
 
-      - name: Build EXE
-        run: |
-          PY_DLL="$(python -c "import sys; print(sys.exec_prefix + '/python311.dll')")"
-          pyinstaller --onefile --windowed
-            --name SelkhozRisheniya
-            --icon app_icon.ico
-            --hidden-import serial
-            --add-binary "${PY_DLL};."
-            --add-data "images;images"
-            --add-data "flags;flags"
-            --add-data "MessageConfig;MessageConfig"
-            --add-data "config.ini;."
-            --add-data "constellation.html;."
-            --collect-all PyQt5.QtWebEngineWidgets
-            --collect-all PyQt5.QtWebEngineCore
-            --collect-all PyQt5.QtWebEngine
-            improved_ui.py
+    # 4. بناء ملف EXE مع كل الموارد المطلوبة
+    - name: Build EXE
+      run: |
+        pyinstaller --onefile --windowed --name SelkhozRisheniya
+        --icon app_icon.ico
+        --hidden-import serial
+        --add-data "images;images"
+        --add-data "flags;flags"
+        --add-data "MessageConfig;MessageConfig"
+        --add-data "config.ini;."
+        --add-data "constellation.html;."
+        --collect-all PyQt5.QtWebEngineWidgets
+        --collect-all PyQt5.QtWebEngineCore
+        --collect-all PyQt5.QtWebEngine
+        improved_ui.py
 
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: build-${{ github.run_number }}
-          name: build-${{ github.run_number }}
-          body: Auto build
-          files: dist/SelkhozRisheniya.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # 5. رفع الملف إلى صفحة Releases
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: build-${{ github.run_number }}
+        name: build-${{ github.run_number }}
+        body: Auto build
+        files: dist/SelkhozRisheniya.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
