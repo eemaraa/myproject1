@@ -26,9 +26,11 @@ jobs:
           python -m pip install pyinstaller pyqt5 pyqtwebengine pyserial requests matplotlib numpy
 
       - name: Build EXE
+        shell: bash
         run: |
-          # حدد مسار DLL الخاص ببايثون ديناميكياً
-          PY_DLL="$(python -c "import sys; print(sys.exec_prefix + '/python311.dll')")"
+          # نحصل مسار python312.dll من تثبيت البايثون
+          PY_DLL="$(python -c "import sys; print(sys.exec_prefix + '/python312.dll')")"
+          # نبني exe واحد يضمّ كل DLLs داخلياً
           pyinstaller --onefile --windowed \
             --name SelkhozRisheniya \
             --icon app_icon.ico \
