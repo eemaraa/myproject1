@@ -1921,56 +1921,84 @@ import sys
 import tempfile
 import requests
 import subprocess
+from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
+from PyQt5.QtCore import Qt
+import os, sys, tempfile, requests, subprocess
 
-VERSION = "1.0.2"
-VERSION_URL = "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/main/version.txt"
-EXE_URL     = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
+VERSION      = "1.0.2"
+VERSION_URL  = "https://raw.githubusercontent.com/eemaraa/myproject1/main/version.txt"
+EXE_URL      = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
 
-def auto_update():
-
-    
+def auto_update(parent=None):
     try:
-        # 1. طلب رقم النسخة الجديدة من GitHub
-        r = requests.get(VERSION_URL, timeout=5)
-        r.raise_for_status()
-        latest = r.text.strip()
+        # 1) получить номер последней версии
+        resp = requests.get(VERSION_URL, timeout=5)
+        resp.raise_for_status()
+        latest = resp.text.strip()
 
-        # 2. لو فيه إصدار أحدث
         if latest != VERSION:
-            print(f"⏬ There is a new update: {latest}")
+            # 2) сообщить пользователю
+            dlg_info = QMessageBox(parent)
+            dlg_info.setIcon(QMessageBox.Information)
+            dlg_info.setWindowTitle("Доступно обновление")
+            dlg_info.setText(f"Обнаружено новое обновление: {latest}\nНачинаем загрузку…")
+            dlg_info.setStandardButtons(QMessageBox.Ok)
+            dlg_info.exec_()
 
-            # 3. تحميل النسخة الجديدة إلى ملف مؤقت
-            temp_path = os.path.join(tempfile.gettempdir(), "new.exe")
-            r2 = requests.get(EXE_URL, stream=True, timeout=10)
-            with open(temp_path, "wb") as f:
-                for chunk in r2.iter_content(1024 * 1024):
-                    f.write(chunk)
+            # 3) узнать общий размер файла
+            head = requests.head(EXE_URL, timeout=5)
+            total_size = int(head.headers.get('Content-Length', 0))
 
-            print("✅ Updated")
+            # 4) настроить ProgressDialog (без кнопки «Отмена»)
+            dlg = QProgressDialog(parent)
+            dlg.setWindowTitle("Загрузка обновления")
+            dlg.setLabelText("Пожалуйста, не закрывайте это окно")
+            dlg.setCancelButton(None)
+            dlg.setRange(0, total_size)
+            dlg.setWindowModality(Qt.WindowModal)
+            dlg.setMinimumWidth(400)
+            dlg.show()
 
-            # 4. إنشاء سكربت bat لاستبدال النسخة الحالية بعد الإغلاق
-            bat_path = os.path.join(tempfile.gettempdir(), "update.bat")
-            current_exe = sys.argv[0]
+            # 5) скачивать и обновлять прогресс-бар
+            temp_exe = os.path.join(tempfile.gettempdir(), "new_SelkhozRisheniya.exe")
+            downloaded = 0
+            with requests.get(EXE_URL, stream=True, timeout=10) as r2:
+                r2.raise_for_status()
+                with open(temp_exe, "wb") as f:
+                    for chunk in r2.iter_content(1024*1024):
+                        if not chunk:
+                            continue
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        dlg.setValue(downloaded)
+                        QApplication.processEvents()
+            dlg.setValue(total_size)
 
-            script = f"""
-            @echo off
-            timeout /t 2 >nul
-            move /Y "{temp_path}" "{current_exe}"
-            start "" "{current_exe}"
-            """
+            # 6) сгенерировать и запустить PowerShell-скрипт
+            ps_path     = os.path.join(tempfile.gettempdir(), "update.ps1")
+            current_exe = os.path.abspath(sys.argv[0])
+            ps_script = f'''
+Start-Sleep -Seconds 2
+Move-Item -LiteralPath "{temp_exe}" -Destination "{current_exe}" -Force
+Start-Process -FilePath "{current_exe}"
+'''
+            with open(ps_path, "w", encoding="utf-8") as psf:
+                psf.write(ps_script)
 
-            with open(bat_path, "w", encoding="utf-8") as f:
-                f.write(script)
+            subprocess.Popen([
+                "powershell", "-NoProfile",
+                "-ExecutionPolicy", "Bypass",
+                "-File", ps_path
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-            # 5. تشغيل السكربت و إنهاء النسخة القديمة
-            subprocess.Popen(['cmd', '/c', bat_path], shell=True)
             sys.exit(0)
 
     except Exception as e:
-        print("❌ فشل التحقق من التحديث:", e)
+        print("❌ Ошибка проверки обновлений:", e)
 
 
 def main():
+    app = QtWidgets.QApplication(sys.argv)
     auto_update()  # ← إضافة هذه السطر في البداية
 
     app = QtWidgets.QApplication(sys.argv)
