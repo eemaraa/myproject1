@@ -2001,7 +2001,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     auto_update()  # ← إضافة هذه السطر في البداية
 
-    app = QtWidgets.QApplication(sys.argv)
+    
     app.setStyleSheet("""
     QMainWindow { background-color: white; }
     QWidget#sidebar { background-color: #90EE90; }
