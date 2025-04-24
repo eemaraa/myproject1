@@ -1922,7 +1922,7 @@ import tempfile
 import requests
 import subprocess
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 VERSION_URL = "https://raw.githubusercontent.com/eemaraa/myproject1/refs/heads/main/version.txt"
 EXE_URL     = "https://github.com/eemaraa/myproject1/releases/latest/download/SelkhozRisheniya.exe"
 
@@ -1974,40 +1974,33 @@ def main():
     auto_update()  # ← إضافة هذه السطر في البداية
 
     app = QtWidgets.QApplication(sys.argv)
-
-    # باقي الكود كما هو
     app.setStyleSheet("""
-    QMainWindow {
-        background-color: white;
-    }
-    QWidget#sidebar {
-        background-color: #90EE90;
-    }
-    QToolButton#toggleButton {
-        background-color: transparent;
-        color: black;
-        border: none;
-        margin: 5px;
-    }
-    QLabel {
-        color: black;
-    }
-    QStatusBar {
-        background-color: #DEF2F1;
-        font-size: 12px;
-    }
+    QMainWindow { background-color: white; }
+    QWidget#sidebar { background-color: #90EE90; }
+    QToolButton#toggleButton { background-color: transparent; color: black; border: none; margin: 5px; }
+    QLabel { color: black; }
+    QStatusBar { background-color: #DEF2F1; font-size: 12px; }
     """)
 
+    # شاشة البداية المتحركة
     splash = SplashScreen(os.path.join("images", "logo.gif"))
     splash.show()
-    app.processEvents()
+    app.processEvents()       # يضمن عرض الـ GIF فورًا
 
+    # نافذة البرنامج
     window = MainWindow()
-    QtCore.QTimer.singleShot(8000, splash.close)
-    window.show()
+    window.showMinimized()    # اظهرها مصغّرة فقط فى شريط المهام
+
+    # بعد 8 ثوانٍ أغلِق الـ Splash وكبِّر النافذة
+    def finish_splash():
+        splash.close()
+        window.showNormal()  # أو showNormal() إذا كنت لا تريد تكبيرًا كاملًا
+
+    QtCore.QTimer.singleShot(8000, finish_splash)
 
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
     main()
+
