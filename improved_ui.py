@@ -1905,11 +1905,9 @@ class MainWindow(QtWidgets.QMainWindow):
             if hasattr(page, "setSerial"):
                 page.setSerial(ser)
 
-
 ##############################################
 # التطبيق الرئيسي
 ##############################################
-
 
 STATUS_URL = (
     "https://raw.githubusercontent.com/"
@@ -1926,18 +1924,21 @@ def check_global_enabled():
         # إذا فشل التحميل اعتبره موقوفًا
         return False
 
-
 def main():
+    # 1) إنشاء QApplication
     app = QtWidgets.QApplication(sys.argv)
 
+    # 2) فحص حالة التفعيل العام
     if not check_global_enabled():
         QtWidgets.QMessageBox.critical(
             None,
-            "Ошибка",
-            
+            "Error",  # عنوان صندوق الحوار
+            "Ошибка.\nПожалуйста, попробуйте позже.",
+            QtWidgets.QMessageBox.Ok
         )
         sys.exit(1)
 
+    # 3) إعداد الثيم والـ splash
     app.setStyleSheet(f"""
     QMainWindow {{
         background-color: white;
@@ -1959,18 +1960,20 @@ def main():
         font-size: 12px;
     }}
     """)
-    # عرض شاشة البداية
+
     splash = SplashScreen(os.path.join("images", "logo.gif"))
     splash.show()
     app.processEvents()
 
-    # بعد 8 ثوانٍ أغلق السْبلاش وأظهر النافذة مكبّرة
+    # 4) تهيئة النافذة الرئيسية ولكن لا تظهرها فوراً
     window = MainWindow()
+
+    # بعد 8 ثوانٍ: أغلق الـ splash واطرح النافذة بحجم كامل
     QtCore.QTimer.singleShot(8000, splash.close)
     QtCore.QTimer.singleShot(8000, window.showMaximized)
 
+    # 5) بدء حلقة الحدث
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
     main()
-
