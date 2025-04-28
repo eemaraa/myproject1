@@ -1910,8 +1910,7 @@ class MainWindow(QtWidgets.QMainWindow):
 ##############################################
 
 STATUS_URL = (
-    "https://raw.githubusercontent.com/"
-    "eemaraa/Selkhozrishynia/main/status.json"
+    "https://raw.githubusercontent.com/eemaraa/Selkhozrishynia/refs/heads/main/status.json?token=GHSAT0AAAAAADCUP5OGHC5K6NKBPQX3XZP22AICUDA"
 )
 
 def check_global_enabled():
