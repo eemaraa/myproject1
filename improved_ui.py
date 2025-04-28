@@ -26,23 +26,6 @@ from PyQt5.QtWidgets import QDialog, QFormLayout, QLineEdit, QDialogButtonBox, Q
 
 
 
-STATUS_URL = (
-    "https://raw.githubusercontent.com/"
-    "eemaraa/Selkhozrishynia/main/status.json"
-)
-
-def check_global_enabled():
-    try:
-        r = requests.get(STATUS_URL, timeout=5)
-        r.raise_for_status()
-        data = r.json()
-        return data.get("enabled", False)
-    except Exception:
-        # إذا فشل التحميل اعتبره موقوفًا
-        return False
-
-
-
 ##############################################
 # دالة resource_path لتحديد مسار الموارد بشكل صحيح
 ##############################################
@@ -1926,15 +1909,32 @@ class MainWindow(QtWidgets.QMainWindow):
 ##############################################
 # التطبيق الرئيسي
 ##############################################
+
+
+STATUS_URL = (
+    "https://raw.githubusercontent.com/"
+    "eemaraa/Selkhozrishynia/main/status.json"
+)
+
+def check_global_enabled():
+    try:
+        r = requests.get(STATUS_URL, timeout=5)
+        r.raise_for_status()
+        data = r.json()
+        return data.get("enabled", False)
+    except Exception:
+        # إذا فشل التحميل اعتبره موقوفًا
+        return False
+
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
     if not check_global_enabled():
         QtWidgets.QMessageBox.critical(
             None,
-            "تم إيقاف التطبيق",
-            "التطبيق غير متاح حالياً لجميع المستخدمين.\n"
-            "يرجى المحاولة لاحقاً."
+            "Ошибка",
+            
         )
         sys.exit(1)
 
