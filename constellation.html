@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Constellation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #fff;
+    }
+    #canvas {
+      width: 100vw;
+      height: 100vh;
+      display: block; /* إزالة المسافات البيضاء الافتراضية */
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  // عند تغيير حجم النافذة، نضبط حجم الكانفس
+  window.addEventListener("resize", resizeCanvas, false);
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    drawSkyPlot();
+  }
+
+  // دالة ترسم الدائرة والأرقام والحلقات
+  function drawSkyPlot() {
+    // مسح الكانفس
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    // نصف القطر الأقصى
+    const maxRadius = Math.min(cx, cy) - 20;
+
+    // رسم حلقات الارتفاع (15°, 35°, 55°, 75°)
+    // نفترض 0° في المركز و 90° في المحيط
+    // ولكن هنا لتمثيل الفكرة، سنرسم 4 حلقات موزعة بالتساوي
+    const rings = [15, 35, 55, 75]; // قيم افتراضية
+    rings.forEach((elDeg) => {
+      // نحتاج تحويلها لنسبة من 0..90
+      // الإشعاع النسبي = elDeg/90 * maxRadius
+      const r = (elDeg / 90) * maxRadius;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+      ctx.strokeStyle = "#A0A0A0";
+      ctx.stroke();
+
+      // نكتب الرقم (elDeg) عند يسار الدائرة
+      ctx.save();
+      ctx.fillStyle = "#333";
+      ctx.font = "14px sans-serif";
+      ctx.fillText(elDeg, cx - r - 15, cy + 5);
+      ctx.restore();
+    });
+
+    // رسم الأرقام على المحيط (0°, 30°, 60°, ... 330°)
+    for (let angle = 0; angle < 360; angle += 30) {
+      const rad = (angle * Math.PI) / 180;
+      const x = cx + maxRadius * Math.cos(rad);
+      const y = cy + maxRadius * Math.sin(rad);
+
+      // رسم علامة صغيرة
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, 2 * Math.PI);
+      ctx.fillStyle = "#000";
+      ctx.fill();
+
+      // كتابة الرقم
+      ctx.save();
+      ctx.fillStyle = "#000";
+      ctx.font = "14px sans-serif";
+      // انزياح بسيط عن النقطة
+      ctx.fillText(angle, x - 8, y - 8);
+      ctx.restore();
+    }
+
+    // يمكن استدعاء دالة رسم الأجهزة هنا
+    // مثلاً drawDevices(devicesArray) حيث يتم تعريفها أدناه
+  }
+
+  // دالة ترسم الأجهزة إن وجدت
+  // كل عنصر في devicesArray نفترض أنه {az: زاوية السمت, el: زاوية الارتفاع, label: "اسم الجهاز"}
+  function drawDevices(devicesArray) {
+    // إذا لم يكن هناك أجهزة، لا نرسم شيئاً
+    if (!devicesArray || devicesArray.length === 0) {
+      return;
+    }
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const maxRadius = Math.min(cx, cy) - 20;
+
+    devicesArray.forEach((dev) => {
+      // dev.az: من 0..360
+      // dev.el: من 0..90
+      const azRad = (dev.az * Math.PI) / 180;
+      const r = (dev.el / 90) * maxRadius;
+      const x = cx + r * Math.cos(azRad);
+      const y = cy + r * Math.sin(azRad);
+
+      // رسم دائرة صغيرة
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = "#FF0000"; // لون أحمر مثلاً
+      ctx.fill();
+
+      // كتابة اسم الجهاز
+      ctx.save();
+      ctx.fillStyle = "#000";
+      ctx.font = "13px sans-serif";
+      ctx.fillText(dev.label, x + 8, y + 4);
+      ctx.restore();
+    });
+  }
+
+  // استدعاء resizeCanvas عند بدء التشغيل
+  resizeCanvas();
+
+  // مثال: إذا أردت اختبار رسم جهازين
+  // يمكنك من داخل الكونسول تجربة:
+  // drawDevices([{az: 30, el: 60, label: "GPS"}, {az: 200, el: 45, label: "BDS"}]);
+</script>
+</body>
+</html>
