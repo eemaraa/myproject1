@@ -1,4 +1,5 @@
 import sys
+import json
 import time
 import serial
 import serial.tools.list_ports   # ← بعد import serial مباشرة
@@ -9,6 +10,7 @@ import os
 import random
 import math
 import re
+import requests
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -21,9 +23,30 @@ from functools import partial
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QDialog, QFormLayout, QLineEdit, QDialogButtonBox, QVBoxLayout
 
+
+
+
+STATUS_URL = (
+    "https://raw.githubusercontent.com/"
+    "eemaraa/Selkhozrishynia/main/status.json"
+)
+
+def check_global_enabled():
+    try:
+        r = requests.get(STATUS_URL, timeout=5)
+        r.raise_for_status()
+        data = r.json()
+        return data.get("enabled", False)
+    except Exception:
+        # إذا فشل التحميل اعتبره موقوفًا
+        return False
+
+
+
 ##############################################
 # دالة resource_path لتحديد مسار الموارد بشكل صحيح
 ##############################################
+
 def resource_path(relative_path):
     """
     تعيد الدالة المسار الصحيح للملف سواء عند التشغيل من بيئة التطوير
@@ -1905,6 +1928,16 @@ class MainWindow(QtWidgets.QMainWindow):
 ##############################################
 def main():
     app = QtWidgets.QApplication(sys.argv)
+
+    if not check_global_enabled():
+        QtWidgets.QMessageBox.critical(
+            None,
+            "تم إيقاف التطبيق",
+            "التطبيق غير متاح حالياً لجميع المستخدمين.\n"
+            "يرجى المحاولة لاحقاً."
+        )
+        sys.exit(1)
+
     app.setStyleSheet(f"""
     QMainWindow {{
         background-color: white;
